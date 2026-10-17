@@ -1,5 +1,7 @@
 # mojo-sieve ⚡
 
+**Release status: experimental.** The Python CLI runs its own reference implementation; it does not load `core.mojo`. The separate native kernel compiles with Mojo 1.1.0. Python tests and native compilation do not establish end-to-end native speed, model accuracy, or production safety. Historical timing and savings figures below are not release guarantees. See [launch review](LAUNCH_READINESS.md).
+
 > [!NOTE]
 > **In Plain English:** When an AI coding agent runs test suites or compilers, the terminal often outputs thousands of lines of logs. Dumping all of that into context burns tokens and causes the agent to lose focus. `mojo-sieve` streams through multi-thousand-line logs in under 2 milliseconds, extracting the critical stack traces, failure assertions, and compiler errors while pruning 95%+ of repetitive passing tests and noise.
 
