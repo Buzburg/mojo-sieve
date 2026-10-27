@@ -1,41 +1,40 @@
-# mojo-sieve ⚡
+# Mojo Sieve 🔎
 
-**Release status: experimental.** The Python CLI runs its own reference implementation; it does not load `core.mojo`. The separate native kernel compiles with Mojo 1.1.0. Python tests and native compilation do not establish end-to-end native speed, model accuracy, or production safety. Historical timing and savings figures below are not release guarantees. See [launch review](LAUNCH_READINESS.md).
+**Find the failure in the flood.**
 
-> [!NOTE]
-> **In Plain English:** When an AI coding agent runs test suites or compilers, the terminal often outputs thousands of lines of logs. Dumping all of that into context burns tokens and causes the agent to lose focus. `mojo-sieve` streams through multi-thousand-line logs in under 2 milliseconds, extracting the critical stack traces, failure assertions, and compiler errors while pruning 95%+ of repetitive passing tests and noise.
+Turn a noisy build log into error-focused context. Sieve keeps recognized errors, nearby lines, and the beginning and end of the output, inserting visible markers where it omits content.
 
----
+## Try it
 
-## ⚡ Features
+Requires Python 3.11+. No Python runtime dependencies or model download.
 
-- **Microsecond Log Compaction:** Compresses 5,000+ line terminal outputs in <2 ms.
-- **Adaptive Windowing:** Preserves root-cause error lines plus 2 surrounding context lines for accurate debugging.
-- **Noise Suppression:** Automatically suppresses repetitive unit test checkmarks, spinners, and downloading progress bars.
-- **Pipelined CLI:** Drop-in pipe support for any command: `npm test | python sieve.py`.
-
----
-
-## 🚀 Quickstart
-
-```bash
-# Pipe any command through mojo-sieve
-cargo test | python sieve.py
-
-# Or compact an existing log file
-python sieve.py build_failure.log
+```sh
+git clone https://github.com/Buzburg/mojo-sieve.git
+cd mojo-sieve
+python sieve.py /path/to/build.log
 ```
 
----
-
-## 🧪 Testing
+For Bash pipelines, capture stderr and preserve the command's failure status:
 
 ```bash
-python -m unittest test_sieve.py
+set -o pipefail
+npm test 2>&1 | python /path/to/mojo-sieve/sieve.py
 ```
 
----
+Use `--max-lines 60` to set the short-log passthrough threshold. It is **not a hard output cap**: every recognized error window is retained, so a failure-heavy log can exceed it. Statistics go to stderr; compacted text goes to stdout.
 
-## 📄 License
+## Know what was omitted
 
-[MIT](LICENSE) © 2026 Buzburg AI
+Recognition is regex-based, not semantic debugging. Keep the original log when exact evidence matters. Unknown error formats and relevant context can be omitted. The CLI reads the complete input into memory; it is not a bounded-memory streaming processor.
+
+The supported CLI is Python. `core.mojo` is a separate experimental kernel; the CLI does not load it, and kernel compilation does not establish native acceleration or parity.
+
+## Verify
+
+```sh
+python -m unittest discover -v
+# Optional native experiment, using Mojo 1.1.0:
+mojo build core.mojo -o sieve-native
+```
+
+[Release verification](RELEASE_VERIFICATION.md). MIT licensed. Built by Buzburg.

@@ -38,6 +38,8 @@ def score_line(line: str) -> float:
     return 0.2
 
 def compact_text(text: str, context_window: int = 2, max_lines: int = 60) -> dict:
+    if max_lines < 1 or context_window < 0:
+        raise ValueError("max_lines must be positive and context_window nonnegative")
     start = time.perf_counter()
     lines = text.splitlines()
     total_lines = len(lines)
@@ -93,7 +95,11 @@ def main():
     parser.add_argument("--max-lines", type=int, default=60)
     args = parser.parse_args()
 
-    if args.input_file and os.path.exists(args.input_file):
+    if args.max_lines < 1:
+        parser.error("--max-lines must be positive")
+    if args.input_file and not os.path.isfile(args.input_file):
+        parser.error("input file does not exist or is not a regular file")
+    if args.input_file:
         with open(args.input_file, "r", encoding="utf-8", errors="replace") as f:
             content = f.read()
     elif not sys.stdin.isatty():
